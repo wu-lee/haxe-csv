@@ -1,0 +1,6 @@
+<dialog width="300" title="Download">
+    <grid width="100%">
+        <label text="URL" verticalAlign="center" />
+        <textfield id="url" width="100%" />        
+    </grid>
+</dialog>

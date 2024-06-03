@@ -1,0 +1,8 @@
+<itemrenderer width="100%">
+    <column width="100%">
+        <vbox width="100%">
+            <label text="label" width="100%"/>
+            <textfield placeholder="Filter" width="100%" />
+        </vbox>
+    </column>
+</itemrenderer>
