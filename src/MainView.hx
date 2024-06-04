@@ -140,22 +140,8 @@ class MainView extends VBox {
 		for (ix in 0...headers.length) {
 			var header = headers[ix];
 			var col = tv.addColumn(header);
-			trace("size0 "+col.percentWidth+" / "+col.width);
-			//col.autoSize();
-			col.removeAllComponents();
 			col.sortable = true;
 			col.id = colId(ix);
-			var content = ComponentBuilder.fromFile("assets/column.xml");
-			var label = content.findComponent(Label, true);
-			if (label != null)
-				label.text = header;
-			trace("size1 "+col.percentWidth+" / "+col.width);
-			content.autoWidth = true;
-			//content.autoSize();
-			col.addComponent(content);
-			trace("size2 "+col.percentWidth+" / "+col.width+" / "+content.width);
-			//col.autoSize();
-			trace("size3 "+col.percentWidth+" / "+col.width);
 			col.autoWidth = true;
 		}
 
