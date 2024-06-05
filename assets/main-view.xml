@@ -6,6 +6,7 @@
   <menubar width="100%">
     <menu text="File">
       <menuitem id="menuItemLoad" text="Load" shortcutText="Ctrl+L" />
+      <menuitem id="menuItemLoadTest" text="Test Load" />
       <menuitem id="menuItemDownload" text="Download" shortcutText="Ctrl+D" />
       <menuitem id="menuItemSave" text="Save" disabled="true" shortcutText="Ctrl+S" />
       <menuitem id="menuItemSaveAs" text="Save As" disabled="true" shortcutText="Ctrl+Shift+S" />

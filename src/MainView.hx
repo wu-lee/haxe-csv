@@ -22,16 +22,16 @@ class MainView extends VBox {
 		super();
 	}
 
-	@:bind(menuItemLoad, MouseEvent.CLICK)
-	private function onMenuItemLoad(_) {
+	@:bind(menuItemLoadTest, MouseEvent.CLICK)
+	private function onMenuItemLoadTest(_) {
 		loadFile({
 			fullPath: "/home/nick/Downloads/2023.csv",
 			name: "2023.csv"
 		});
 	}
 
-	// @:bind(menuItemLoad, MouseEvent.CLICK)
-	private function onMenuItemLoadxxx(_) {
+	@:bind(menuItemLoad, MouseEvent.CLICK)
+	private function onMenuItemLoad(_) {
 		Dialogs.openFile(function(button, selectedFiles) {
 			if (button == DialogButton.OK) {
 				loadFile(selectedFiles[0]);
