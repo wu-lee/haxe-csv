@@ -136,6 +136,7 @@ class MainView extends VBox {
 		}
 
 		// Now add the headers we found as table columns
+		tv.virtual = true;
 		tv.clearContents(true);
 		for (ix in 0...headers.length) {
 			var header = headers[ix];
