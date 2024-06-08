@@ -46,48 +46,48 @@ class MainView extends VBox {
 
 	@:bind(menuItemDownload, MouseEvent.CLICK)
 	private function onMenuItemDownload(e) {
-		var headerIr = ComponentBuilder.fromFile("assets/column.xml");
-
-		//var data = Assets.getText("assets/example.csv");
-		//loadString(data);
-		return;
-	
 		var dialog = new DownloadDialog();
 		dialog.onDialogClosed = function(e:DialogEvent) {
-			var url = "http://data.solidarityeconomy.coop/dotcoop/standard.csv";
-			//trace("downloading "+url);
-			//download(url);
+			download(dialog.url.text);
 		}
 		dialog.showDialog();
 	}
 
-	private function download(url:String) {
+	private var maxRedirections = 10;
+	private function download(url:String, redirections:Int = 0) {
 		var http = new haxe.Http(url);
-
-		http.onData = function(data:String) {
-			trace("downloading "+url);
-			NotificationManager.instance.addNotification({
-				title: "Download ununsuccessful",
-				body: "Error with " + url,
-				type: NotificationType.Success
-			});
-			loadString(data);
-		};
 		http.onError = function(error:String) {
+//			trace("error "+error); // DEBUG
 			NotificationManager.instance.addNotification({
 				title: "Download unsuccessful",
 				body: "Error with " + url+" - "+error,
 				type: NotificationType.Error
 			});
 		}
-		http.onStatus = function(status) {
-			NotificationManager.instance.addNotification({
-				title: "Status "+status,
-				body: "Status is "+status,
-				type: NotificationType.Info
-			});
+
+		http.onStatus = function(status:Int) {
+//			trace("status "+status); // DEBUG
+			if (status == 200) {
+				http.onData = function(data:String) {
+//					trace("data "+data.substr(0,100)); // DEBUG
+					loadString(data);
+				};
+				return;	
+			}
+			if (status < 300 || status >= 400)
+				return;
+
+			if (redirections > maxRedirections) {
+				return; // FIXME handle?
+			}
+			var location = http.responseHeaders["Location"];
+			if (location == null)
+				return;
+
+			download(location, redirections+1);
 		}
 
+//		trace((redirections > 0? 'redirection $redirections to ' : "downloading ")+url); // DEBUG
 		http.request();
 	}
 
@@ -97,8 +97,6 @@ class MainView extends VBox {
 	}
 
 	private function loadString(data:String) {
-		trace("downloading "+data.substr(0,100));
-
 		var reader = new Reader();
 		reader.open(data);
 		load(reader);

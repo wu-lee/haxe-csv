@@ -1,0 +1,7 @@
+- count and navigation bar
+- column filtering sidebar
+- value inspector - hover or filter sidebar?
+- column types
+- edit values?
+- delete/insert/copy columns/rows?
+- stats view?
