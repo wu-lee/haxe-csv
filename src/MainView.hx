@@ -1,7 +1,5 @@
 package;
 
-//import openfl.Assets;
-import haxe.ui.ComponentBuilder;
 import haxe.ui.notifications.NotificationType;
 import haxe.ui.notifications.NotificationManager;
 import haxe.ui.containers.dialogs.Dialog.DialogEvent;
