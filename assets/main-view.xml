@@ -10,6 +10,7 @@
       <menuitem id="menuItemDownload" text="Download" shortcutText="Ctrl+D" />
       <menuitem id="menuItemSave" text="Save" disabled="true" shortcutText="Ctrl+S" />
       <menuitem id="menuItemSaveAs" text="Save As" disabled="true" shortcutText="Ctrl+Shift+S" />
+      <menuitem id="menuItemQuit" text="Quit" shortcutText="Ctrl+Q" />
       <!--menu text="Sub Menu">
         <menuitem text="Item 1" />
         <menuitem text="Item 2" />

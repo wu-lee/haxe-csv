@@ -18,7 +18,13 @@ import format.csv.Reader;
 class MainView extends VBox {
 	public function new() {
 		super();
+		#if !sys
+		// Hide the quit menu if we're not on a Sys platform, as it won't do anything
+		menuItemQuit.hidden = true;
+		#end
 	}
+
+	public dynamic function exit(value:Int):Void {}
 
 	@:bind(menuItemLoadTest, MouseEvent.CLICK)
 	private function onMenuItemLoadTest(_) {
@@ -49,6 +55,11 @@ class MainView extends VBox {
 			download(dialog.url.text);
 		}
 		dialog.showDialog();
+	}
+
+	@:bind(menuItemQuit, MouseEvent.CLICK)
+	private function onMenuItemQuit(e) {
+		exit(0);
 	}
 
 	private var maxRedirections = 10;
