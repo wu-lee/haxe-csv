@@ -1,0 +1,30 @@
+# Cross-platform formatting config
+# See https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+# Matches multiple files with brace expansion notation
+# Set default charset
+[*.{js,ts,json,md,html,yaml,yml,css,hx,xml,hxml}]
+charset = utf-8
+
+# 2 space indentation
+[*.{js,ts,json,html,yaml,yml,css,hx,xml,hxml}]
+indent_style = space
+indent_size = 2
+
+# 4 space indentation
+[*.{hx,xml,hxml}]
+indent_style = space
+indent_size = 4
+
+[*.md]
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = false
