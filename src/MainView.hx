@@ -1,5 +1,7 @@
 package;
 
+import haxe.ui.events.EventType;
+import haxe.ui.events.UIEvent;
 import haxe.ui.containers.ListView;
 import haxe.ui.geom.Rectangle;
 import haxe.ui.geom.Point;
@@ -68,12 +70,9 @@ class MainView extends VBox {
 	// Handles drag-end events re-emitted by the column control sidebar
 	//
 	// Works out where it insert, and does the insertion.
-	@:bind(rootComponent, DragEvent.DRAG_END)
-	function onDragEnd(e:DragEvent) {
-		if (!(e.data is ColumnControlItemRenderer)) {
-			return; // This wasn't intended for us
-		}
-        var draggedItem:ColumnControlItemRenderer = e.data;
+	@:bind(rootComponent, ColumnControlEvent.COLUMN_MOVE)
+	function onDragEnd(e:ColumnControlEvent) {
+        var draggedItem = e.sourceControl;
 		var point:Point = new Point(draggedItem.screenLeft, draggedItem.screenTop);
         var draggedItemIx = draggedItem.preDragIndex;
 		var components = findComponentsUnderPoint(point.x, point.y, ColumnControlItemRenderer);
@@ -96,6 +95,13 @@ class MainView extends VBox {
 		//trace("moving item " + columnControlList.getComponentIndex(draggedItem) + " to " + ix);
 		columnControlList.setComponentIndex(draggedItem, targetIx);
 
+        // Duplicate this in the TableView
+        var draggedColumn = tv.header.getComponentAt(draggedItemIx);
+        trace("dragged "+draggedColumn+" from "+draggedItemIx);
+        if (draggedColumn != null) {
+            tv.header.setComponentIndex(draggedColumn, targetIx);
+            tv.invalidateComponentLayout();
+        }
 	}
 
 	private var maxRedirections = 10;
@@ -229,6 +235,38 @@ class MainView extends VBox {
 	}
 }
 
+class ColumnControlEvent extends UIEvent {
+    public static final COLUMN_MOVE:EventType<ColumnControlEvent> = EventType.name("columnmove");
+    public static final COLUMN_HIDE:EventType<ColumnControlEvent> = EventType.name("columnhide");
+    public static final COLUMN_REVEAL:EventType<ColumnControlEvent> = EventType.name("columnreveal");
+    public static final COLUMN_FILTER:EventType<ColumnControlEvent> = EventType.name("columnfilter");
+ 
+    public var columnIndex:Int = -1;
+    public var sourceControl:ColumnControlItemRenderer = null;
+
+    public function new(
+        type:EventType<ColumnControlEvent>,
+        columnIndex:Int = -1,
+        sourceControl:ColumnControlItemRenderer = null,
+        bubble:Null<Bool> = false,
+        data:Dynamic = null) {
+        super(type, bubble, data);
+        this.columnIndex = columnIndex;
+        this.sourceControl = sourceControl;
+    }
+
+    public override function clone():ColumnControlEvent {
+        var c:ColumnControlEvent = new ColumnControlEvent(this.type);
+        c.data = this.data;
+        c.type = this.type;
+        c.target = this.target;
+        c.columnIndex = this.columnIndex;
+        c.sourceControl = this.sourceControl;
+        postClone(c);
+        return c;
+    }
+}
+
 @:build(haxe.ui.ComponentBuilder.build("assets/column-control-item.xml"))
 class ColumnControlItemRenderer extends ItemRenderer {
     public var preDragIndex:Int = -1;
@@ -254,8 +292,8 @@ class ColumnControlItemRenderer extends ItemRenderer {
 		if (e.data != null)
 			return; // This event is intended for the root control
 
-		var dragItem = new DragEvent(DragEvent.DRAG_END, this);
-		rootComponent.dispatch(dragItem);
+		var moveEvent = new ColumnControlEvent(ColumnControlEvent.COLUMN_MOVE, this);
+		rootComponent.dispatch(moveEvent);
 	}
 
 	public override function onReady() {
