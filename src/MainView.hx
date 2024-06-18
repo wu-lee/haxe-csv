@@ -1,5 +1,6 @@
 package;
 
+import haxe.ui.containers.ListView;
 import haxe.ui.geom.Rectangle;
 import haxe.ui.geom.Point;
 import haxe.ui.events.DragEvent;
@@ -69,33 +70,32 @@ class MainView extends VBox {
 	// Works out where it insert, and does the insertion.
 	@:bind(rootComponent, DragEvent.DRAG_END)
 	function onDragEnd(e:DragEvent) {
-		if (!(e.data is Point)) {
+		if (!(e.data is ColumnControlItemRenderer)) {
 			return; // This wasn't intended for us
 		}
-		var point:Point = e.data;
+        var draggedItem:ColumnControlItemRenderer = e.data;
+		var point:Point = new Point(draggedItem.screenLeft, draggedItem.screenTop);
+        var draggedItemIx = draggedItem.preDragIndex;
 		var components = findComponentsUnderPoint(point.x, point.y, ColumnControlItemRenderer);
-		if (components.length <= 0)
-			return; // We have no target item?
+		if (components.length <= 1)
+			return; // We have no target item + target?
 		
 		var targetItem = cast(components[0], ColumnControlItemRenderer);
-		var targetIx = lvcolumns.getComponentIndex(targetItem);
-		if (components.length <= 1)
-			return; // We have no dragged item?
+		var targetIx = columnControlList.getComponentIndex(targetItem);
 		
-		var draggedItem = cast(components[1], ColumnControlItemRenderer);
-
 		// Increment the index, unless we've been dragged right to the very top
 		// This is so we insert *below* the target item.
-		if (point.y > lvcolumns.getComponentAt(0).screenTop)
+		if (point.y > columnControlList.getComponentAt(0).screenTop)
 			targetIx += 1;
 
 		// Make sure we're not out of range.
-		if (targetIx >= lvcolumns.dataSource.size)
-			targetIx = lvcolumns.itemCount - 1;
+		if (targetIx >= columnControlList.dataSource.size)
+			targetIx = columnControlList.itemCount - 1;
 
 		// Move the draggedItem below the target
-		//trace("moving item " + lvcolumns.getComponentIndex(draggedItem) + " to " + ix);
-		lvcolumns.setComponentIndex(draggedItem, targetIx);
+		//trace("moving item " + columnControlList.getComponentIndex(draggedItem) + " to " + ix);
+		columnControlList.setComponentIndex(draggedItem, targetIx);
+
 	}
 
 	private var maxRedirections = 10;
@@ -181,7 +181,7 @@ class MainView extends VBox {
 		// Now add the headers we found as table columns
 		tv.virtual = true;
 		tv.clearContents(true);
-		var colsDs = new ArrayDataSource<Dynamic>();
+		var columnControlData = new ArrayDataSource<Dynamic>();
 		for (ix in 0...headers.length) {
 			var header = headers[ix];
 			{
@@ -192,7 +192,7 @@ class MainView extends VBox {
 			}
 			{
 				// Add an item to the column list datasource
-				colsDs.add({columnHeader: header, id: "list" + colId(ix)});
+				columnControlData.add({columnHeader: header, id: "list" + colId(ix)});
 			}
 		}
 
@@ -224,13 +224,15 @@ class MainView extends VBox {
 
 		// Add a ListView column
 		var ir = new ColumnControlItemRenderer();
-		lvcolumns.itemRenderer = ir;
-		lvcolumns.dataSource = colsDs;
+		columnControlList.itemRenderer = ir;
+		columnControlList.dataSource = columnControlData;
 	}
 }
 
 @:build(haxe.ui.ComponentBuilder.build("assets/column-control-item.xml"))
 class ColumnControlItemRenderer extends ItemRenderer {
+    public var preDragIndex:Int = -1;
+
 	@:bind(visibleButton, MouseEvent.CLICK)
 	function onVisibleClick(e) {
 		trace("click");
@@ -243,6 +245,7 @@ class ColumnControlItemRenderer extends ItemRenderer {
 	}
 
 	function onDragStart(e:DragEvent) {
+        preDragIndex = this.parentComponent.parentComponent.getComponentIndex(this);
 		moveComponentToFront();
 	}
 
@@ -251,13 +254,12 @@ class ColumnControlItemRenderer extends ItemRenderer {
 		if (e.data != null)
 			return; // This event is intended for the root control
 
-		var dragItem = new DragEvent(DragEvent.DRAG_END, new Point(screenLeft, screenTop));
+		var dragItem = new DragEvent(DragEvent.DRAG_END, this);
 		rootComponent.dispatch(dragItem);
 	}
 
 	public override function onReady() {
 		super.onReady();
-//		id = data.id;
 
 		var bounds = parentComponent.screenBounds;
 		registerEvent(DragEvent.DRAG_END, onDragEnd);

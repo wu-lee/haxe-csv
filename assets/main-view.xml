@@ -119,7 +119,7 @@
       </tableview>
     </vbox>
     <vbox id="vbcontrols" width="20%" height="100%">
-      <listview id="lvcolumns" width="100%" height="100%" selectedIndex="1">
+      <listview id="columnControlList" width="100%" height="100%" selectedIndex="1">
         <item-renderer className="col-header" layout="vertical" width="100%">
           <hbox width="100%">
             <button id="visible"  text="" toggle="true" styleName="visible-button" />
