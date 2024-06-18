@@ -2,6 +2,25 @@
   <style>
      #vb1  {
     }
+    .visible-button {
+      width: 19px;
+      height: 19px;
+      background-image: "assets/eye.png";
+    }
+    .visible-button:down {
+      background-image: "assets/eye-crossed.png";
+    }
+    .filter-button {
+      width: 19px;
+      height: 19px;
+      background-image: "assets/filter-crossed.png";
+    }
+    .filter-button:down {
+      background-image: "assets/filter.png";
+    }
+    .col-header.dragging {
+      opacity: 50%;
+    }
   </style>
   <menubar width="100%">
     <menu text="File">
@@ -29,71 +48,92 @@
         <menuoptionbox text="Item 12" group="somegroup" />
       </menu-->
     </menu>
+    <hbox width="100%"/>
+    <number-stepper pos="30" step="10" min="10" max="50"  />
   </menubar>
-  <vbox id="vb1" width="100%" height="100%">
-    <tableview id="tv" width="100%"  height="100%" contentWidth="100%">
-      <header>
-        <!--column id="colA" text="Column A" sortable="true"/>
-        <column id="colB" text="Column B" sortable="true"/>
-        <column id="colC" text="Column C" sortable="true"/-->
-      </header>
-      
-      <data>
-        <!--item colA="A1" colB="B1" colC="C1" />
-        <item colA="A2" colB="B2" colC="C2" />
-        <item colA="A3" colB="B3" colC="C3" />
-        <item colA="A4" colB="B4" colC="C4" />
-        <item colA="A5" colB="B5" colC="C5" />
-        <item colA="A6" colB="B6" colC="C6" />
-        <item colA="A7" colB="B7" colC="C7" />
-        <item colA="A8" colB="B8" colC="C8" />
+  <splitter direction="horizontal" width="100%" height="100%">
+    <vbox id="vbtable" width="80%" height="100%">
+      <tableview id="tv" width="100%"  height="100%" contentWidth="100%">
+	<header>
+          <!--column id="colA" text="Column A" sortable="true"/>
+          <column id="colB" text="Column B" sortable="true"/>
+          <column id="colC" text="Column C" sortable="true"/-->
+	</header>
+	
+	<data>
+          <!--item colA="A1" colB="B1" colC="C1" />
+          <item colA="A2" colB="B2" colC="C2" />
+          <item colA="A3" colB="B3" colC="C3" />
+          <item colA="A4" colB="B4" colC="C4" />
+          <item colA="A5" colB="B5" colC="C5" />
+          <item colA="A6" colB="B6" colC="C6" />
+          <item colA="A7" colB="B7" colC="C7" />
+          <item colA="A8" colB="B8" colC="C8" />
         <item colA="A9" colB="B9" colC="C9" />
-        <item colA="A1" colB="B1" colC="C1" />
-        <item colA="A2" colB="B2" colC="C2" />
-        <item colA="A3" colB="B3" colC="C3" />
-        <item colA="A4" colB="B4" colC="C4" />
-        <item colA="A5" colB="B5" colC="C5" />
-        <item colA="A6" colB="B6" colC="C6" />
-        <item colA="A7" colB="B7" colC="C7" />
-        <item colA="A8" colB="B8" colC="C8" />
-        <item colA="A9" colB="B9" colC="C9" />
-        <item colA="A1" colB="B1" colC="C1" />
-        <item colA="A2" colB="B2" colC="C2" />
-        <item colA="A3" colB="B3" colC="C3" />
-        <item colA="A4" colB="B4" colC="C4" />
-        <item colA="A5" colB="B5" colC="C5" />
-        <item colA="A6" colB="B6" colC="C6" />
-        <item colA="A7" colB="B7" colC="C7" />
-        <item colA="A8" colB="B8" colC="C8" />
-        <item colA="A9" colB="B9" colC="C9" />
-        <item colA="A1" colB="B1" colC="C1" />
-        <item colA="A2" colB="B2" colC="C2" />
-        <item colA="A3" colB="B3" colC="C3" />
-        <item colA="A4" colB="B4" colC="C4" />
-        <item colA="A5" colB="B5" colC="C5" />
-        <item colA="A6" colB="B6" colC="C6" />
-        <item colA="A7" colB="B7" colC="C7" />
-        <item colA="A8" colB="B8" colC="C8" />
-        <item colA="A9" colB="B9" colC="C9" />
-        <item colA="A1" colB="B1" colC="C1" />
-        <item colA="A2" colB="B2" colC="C2" />
-        <item colA="A3" colB="B3" colC="C3" />
-        <item colA="A4" colB="B4" colC="C4" />
-        <item colA="A5" colB="B5" colC="C5" />
-        <item colA="A6" colB="B6" colC="C6" />
-        <item colA="A7" colB="B7" colC="C7" />
-        <item colA="A8" colB="B8" colC="C8" />
-        <item colA="A9" colB="B9" colC="C9" />
-        <item colA="A1" colB="B1" colC="C1" />
-        <item colA="A2" colB="B2" colC="C2" />
-        <item colA="A3" colB="B3" colC="C3" />
-        <item colA="A4" colB="B4" colC="C4" />
-        <item colA="A5" colB="B5" colC="C5" />
-        <item colA="A6" colB="B6" colC="C6" />
-        <item colA="A7" colB="B7" colC="C7" />
-        <item colA="A8" colB="B8" colC="C8" />
-        <item colA="A9" colB="B9" colC="C9" /-->
-      </data>
-    </tableview>
-  </vbox>
+	  <item colA="A1" colB="B1" colC="C1" />
+	  <item colA="A2" colB="B2" colC="C2" />
+	  <item colA="A3" colB="B3" colC="C3" />
+	  <item colA="A4" colB="B4" colC="C4" />
+	  <item colA="A5" colB="B5" colC="C5" />
+	  <item colA="A6" colB="B6" colC="C6" />
+	  <item colA="A7" colB="B7" colC="C7" />
+	  <item colA="A8" colB="B8" colC="C8" />
+	  <item colA="A9" colB="B9" colC="C9" />
+	  <item colA="A1" colB="B1" colC="C1" />
+	  <item colA="A2" colB="B2" colC="C2" />
+	  <item colA="A3" colB="B3" colC="C3" />
+	  <item colA="A4" colB="B4" colC="C4" />
+	  <item colA="A5" colB="B5" colC="C5" />
+	  <item colA="A6" colB="B6" colC="C6" />
+	  <item colA="A7" colB="B7" colC="C7" />
+	  <item colA="A8" colB="B8" colC="C8" />
+	  <item colA="A9" colB="B9" colC="C9" />
+	  <item colA="A1" colB="B1" colC="C1" />
+	  <item colA="A2" colB="B2" colC="C2" />
+	  <item colA="A3" colB="B3" colC="C3" />
+	  <item colA="A4" colB="B4" colC="C4" />
+	  <item colA="A5" colB="B5" colC="C5" />
+	  <item colA="A6" colB="B6" colC="C6" />
+	  <item colA="A7" colB="B7" colC="C7" />
+	  <item colA="A8" colB="B8" colC="C8" />
+	  <item colA="A9" colB="B9" colC="C9" />
+	  <item colA="A1" colB="B1" colC="C1" />
+	  <item colA="A2" colB="B2" colC="C2" />
+	  <item colA="A3" colB="B3" colC="C3" />
+	  <item colA="A4" colB="B4" colC="C4" />
+	  <item colA="A5" colB="B5" colC="C5" />
+	  <item colA="A6" colB="B6" colC="C6" />
+	  <item colA="A7" colB="B7" colC="C7" />
+	  <item colA="A8" colB="B8" colC="C8" />
+	  <item colA="A9" colB="B9" colC="C9" />
+	  <item colA="A1" colB="B1" colC="C1" />
+	  <item colA="A2" colB="B2" colC="C2" />
+	  <item colA="A3" colB="B3" colC="C3" />
+	  <item colA="A4" colB="B4" colC="C4" />
+	  <item colA="A5" colB="B5" colC="C5" />
+	  <item colA="A6" colB="B6" colC="C6" />
+	  <item colA="A7" colB="B7" colC="C7" />
+	  <item colA="A8" colB="B8" colC="C8" />
+	  <item colA="A9" colB="B9" colC="C9" /-->
+	</data>
+      </tableview>
+    </vbox>
+    <vbox id="vbcontrols" width="20%" height="100%">
+      <listview id="lvcolumns" width="100%" height="100%" selectedIndex="1">
+        <item-renderer className="col-header" layout="vertical" width="100%">
+          <hbox width="100%">
+            <button id="visible"  text="" toggle="true" styleName="visible-button" />
+            <button id="filter" text="" toggle="true" styleName="filter-button" />
+            <label width="100%" id="item" verticalAlign="center"  wordWrap="false" />
+          </hbox>
+          <textfield  width="100%" id="filterText" hidden="true" placeholder="Filter..."  />
+        </item-renderer>
+        <data>
+          <!--item visble="false" item="Item 1"  />
+          <item visble="false" item="Item 2"  />
+	  <item visble="false" item="Item 3"  /-->
+        </data>
+      </listview>
+    </vbox>
+  </splitter>
 </vbox>
