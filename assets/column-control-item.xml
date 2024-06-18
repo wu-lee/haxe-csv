@@ -1,0 +1,8 @@
+<item-renderer layout="vertical" width="100%">
+  <hbox width="100%">
+    <button id="visibleButton" text="" toggle="true" styleName="visible-button" />
+    <button id="filterButton" text="" toggle="true" styleName="filter-button" />
+    <label width="100%" id="columnControlHeader" verticalAlign="center"  wordWrap="false" />
+  </hbox>
+  <textfield  width="100%" id="filterText" hidden="true" placeholder="Filter..."  />
+</item-renderer>

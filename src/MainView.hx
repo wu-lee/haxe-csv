@@ -1,5 +1,9 @@
 package;
 
+import haxe.ui.geom.Rectangle;
+import haxe.ui.geom.Point;
+import haxe.ui.events.DragEvent;
+import haxe.ui.dragdrop.DragManager;
 import haxe.ui.notifications.NotificationType;
 import haxe.ui.notifications.NotificationManager;
 import haxe.ui.containers.dialogs.Dialog.DialogEvent;
@@ -11,8 +15,6 @@ import haxe.ui.containers.VBox;
 import haxe.ui.events.MouseEvent;
 import haxe.ui.containers.dialogs.Dialogs;
 import format.csv.Reader;
-
-
 
 @:build(haxe.ui.ComponentBuilder.build("assets/main-view.xml"))
 class MainView extends VBox {
@@ -62,26 +64,61 @@ class MainView extends VBox {
 		exit(0);
 	}
 
+	// Handles drag-end events re-emitted by the column control sidebar
+	//
+	// Works out where it insert, and does the insertion.
+	@:bind(rootComponent, DragEvent.DRAG_END)
+	function onDragEnd(e:DragEvent) {
+		if (!(e.data is Point)) {
+			return; // This wasn't intended for us
+		}
+		var point:Point = e.data;
+		var components = findComponentsUnderPoint(point.x, point.y, ColumnControlItemRenderer);
+		if (components.length <= 0)
+			return; // We have no target item?
+		
+		var targetItem = cast(components[0], ColumnControlItemRenderer);
+		var targetIx = lvcolumns.getComponentIndex(targetItem);
+		if (components.length <= 1)
+			return; // We have no dragged item?
+		
+		var draggedItem = cast(components[1], ColumnControlItemRenderer);
+
+		// Increment the index, unless we've been dragged right to the very top
+		// This is so we insert *below* the target item.
+		if (point.y > lvcolumns.getComponentAt(0).screenTop)
+			targetIx += 1;
+
+		// Make sure we're not out of range.
+		if (targetIx >= lvcolumns.dataSource.size)
+			targetIx = lvcolumns.itemCount - 1;
+
+		// Move the draggedItem below the target
+		//trace("moving item " + lvcolumns.getComponentIndex(draggedItem) + " to " + ix);
+		lvcolumns.setComponentIndex(draggedItem, targetIx);
+	}
+
 	private var maxRedirections = 10;
+
 	private function download(url:String, redirections:Int = 0) {
 		var http = new haxe.Http(url);
 		http.onError = function(error:String) {
-//			trace("error "+error); // DEBUG
+			//			trace("error "+error); // DEBUG
 			NotificationManager.instance.addNotification({
 				title: "Download unsuccessful",
-				body: "Error with " + url+" - "+error,
+				body: "Error with " + url + " - " + error,
 				type: NotificationType.Error
 			});
 		}
 
 		http.onStatus = function(status:Int) {
-//			trace("status "+status); // DEBUG
+			//			trace("status "+status); // DEBUG
 			if (status == 200) {
 				http.onData = function(data:String) {
-//					trace("data "+data.substr(0,100)); // DEBUG
+					//					trace("data "+data.substr(0,100)); // DEBUG
 					loadString(data);
 				};
-				return;	
+				return;
 			}
 			if (status < 300 || status >= 400)
 				return;
@@ -93,10 +130,10 @@ class MainView extends VBox {
 			if (location == null)
 				return;
 
-			download(location, redirections+1);
+			download(location, redirections + 1);
 		}
 
-//		trace((redirections > 0? 'redirection $redirections to ' : "downloading ")+url); // DEBUG
+		//		trace((redirections > 0? 'redirection $redirections to ' : "downloading ")+url); // DEBUG
 		http.request();
 	}
 
@@ -141,18 +178,23 @@ class MainView extends VBox {
 			}
 			ds.add(item);
 		}
-
 		// Now add the headers we found as table columns
 		tv.virtual = true;
 		tv.clearContents(true);
+		var colsDs = new ArrayDataSource<Dynamic>();
 		for (ix in 0...headers.length) {
 			var header = headers[ix];
-			var col = tv.addColumn(header);
-			col.sortable = true;
-			col.id = colId(ix);
-			col.autoWidth = true;
+			{
+				var col = tv.addColumn(header);
+				col.sortable = true;
+				col.id = colId(ix);
+				col.autoWidth = true;
+			}
+			{
+				// Add an item to the column list datasource
+				colsDs.add({columnHeader: header, id: "list" + colId(ix)});
+			}
 		}
-
 
 		// Now reset the renderers for the columns.
 		// We have to do this or the renderers won't be appropriate.
@@ -161,21 +203,77 @@ class MainView extends VBox {
 		for (ix in 0...headers.length) {
 			var header = headers[ix];
 
-			var ir = new ItemRenderer();
-			var label = new Label();
-			label.percentWidth = 100;
-			label.verticalAlign = "center";
-			label.id = colId(ix);
-			label.autoHeight = false;
-			label.clip = true;
-			label.wordWrap = false;
-			label.onChange = (e) -> {
-				e.target.tooltip = e.target.value;
-			};
-			ir.addComponent(label);
-			tv.itemRenderer.addComponent(ir);
+			{
+				// Add a TableView column
+				var ir = new ItemRenderer();
+				var label = new Label();
+				label.percentWidth = 100;
+				label.verticalAlign = "center";
+				label.id = colId(ix);
+				label.autoHeight = false;
+				label.clip = true;
+				label.wordWrap = false;
+				label.onChange = (e) -> {
+					e.target.tooltip = e.target.value;
+				};
+				ir.addComponent(label);
+				tv.itemRenderer.addComponent(ir);
+			}
 		}
 		tv.dataSource = ds;
+
+		// Add a ListView column
+		var ir = new ColumnControlItemRenderer();
+		lvcolumns.itemRenderer = ir;
+		lvcolumns.dataSource = colsDs;
+	}
+}
+
+@:build(haxe.ui.ComponentBuilder.build("assets/column-control-item.xml"))
+class ColumnControlItemRenderer extends ItemRenderer {
+	@:bind(visibleButton, MouseEvent.CLICK)
+	function onVisibleClick(e) {
+		trace("click");
 	}
 
+	@:bind(filterButton, MouseEvent.CLICK)
+	function onFilterClick(e) {
+		filterText.hidden = !filterText.hidden;
+		trace("click");
+	}
+
+	function onDragStart(e:DragEvent) {
+		moveComponentToFront();
+	}
+
+	function onDragEnd(e:DragEvent) {
+		// Work out where we were dropped
+		if (e.data != null)
+			return; // This event is intended for the root control
+
+		var dragItem = new DragEvent(DragEvent.DRAG_END, new Point(screenLeft, screenTop));
+		rootComponent.dispatch(dragItem);
+	}
+
+	public override function onReady() {
+		super.onReady();
+//		id = data.id;
+
+		var bounds = parentComponent.screenBounds;
+		registerEvent(DragEvent.DRAG_END, onDragEnd);
+		registerEvent(DragEvent.DRAG_START, onDragStart);
+		DragManager.instance.registerDraggable(this, {
+			mouseTarget: this,
+			dragBounds: new Rectangle(0, 0, bounds.width, bounds.height),
+		});
+	}
+
+	private override function onDataChanged(data:Dynamic) {
+		super.onDataChanged(data);
+		if (data == null) {
+			return;
+		}
+
+		columnControlHeader.text = data.columnHeader;
+	}
 }
