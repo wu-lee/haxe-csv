@@ -67,6 +67,15 @@ class MainView extends VBox {
 		exit(0);
 	}
 
+    @:bind(rootComponent, ColumnControlEvent.COLUMN_REVEAL)
+    @:bind(rootComponent, ColumnControlEvent.COLUMN_HIDE)
+	function onColumnHide(e:ColumnControlEvent) {
+        var header = tv.header.getComponentAt(e.columnIndex);
+        if (header == null)
+            return;
+        header.hidden = e.type == ColumnControlEvent.COLUMN_HIDE;
+    }
+
 	// Handles drag-end events re-emitted by the column control sidebar
 	//
 	// Works out where it insert, and does the insertion.
@@ -240,6 +249,7 @@ class ColumnControlEvent extends UIEvent {
     public static final COLUMN_HIDE:EventType<ColumnControlEvent> = EventType.name("columnhide");
     public static final COLUMN_REVEAL:EventType<ColumnControlEvent> = EventType.name("columnreveal");
     public static final COLUMN_FILTER:EventType<ColumnControlEvent> = EventType.name("columnfilter");
+    public static final COLUMN_UNFILTER:EventType<ColumnControlEvent> = EventType.name("columnunfilter");
  
     public var columnIndex:Int = -1;
     public var sourceControl:ColumnControlItemRenderer = null;
@@ -273,19 +283,31 @@ class ColumnControlItemRenderer extends ItemRenderer {
 
 	@:bind(visibleButton, MouseEvent.CLICK)
 	function onVisibleClick(e) {
-		trace("click");
+        var type = this.visibleButton.selected? 
+            ColumnControlEvent.COLUMN_HIDE : ColumnControlEvent.COLUMN_REVEAL; 
+        var event = new ColumnControlEvent(type, getIndex(), this);
+        rootComponent.dispatch(event);
 	}
 
 	@:bind(filterButton, MouseEvent.CLICK)
 	function onFilterClick(e) {
 		filterText.hidden = !filterText.hidden;
-		trace("click");
+        var type = this.filterButton.selected? 
+            ColumnControlEvent.COLUMN_FILTER : ColumnControlEvent.COLUMN_UNFILTER;
+        var event = new ColumnControlEvent(type, getIndex(), this);
+        rootComponent.dispatch(event);
 	}
 
 	function onDragStart(e:DragEvent) {
-        preDragIndex = this.parentComponent.parentComponent.getComponentIndex(this);
+        getIndex();
 		moveComponentToFront();
 	}
+
+    function getIndex():Int {
+        // There's a bit of magic know-how in getting our parent's parent!
+        // Hope it never changes?
+        return preDragIndex = this.parentComponent.parentComponent.getComponentIndex(this);
+    }
 
 	function onDragEnd(e:DragEvent) {
 		// Work out where we were dropped
