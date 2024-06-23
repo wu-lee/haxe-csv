@@ -34,8 +34,8 @@ class MainView extends VBox {
 	@:bind(menuItemLoadTest, MouseEvent.CLICK)
 	private function onMenuItemLoadTest(_) {
 		loadFile({
-			fullPath: "/home/nick/Downloads/2023.csv",
-			name: "2023.csv"
+			fullPath: "assets/example.csv",
+			name: "example.csv"
 		});
 	}
 
