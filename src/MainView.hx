@@ -74,6 +74,35 @@ class MainView extends VBox {
         header.hidden = e.type == ColumnControlEvent.COLUMN_HIDE;
     }
 
+    @:bind(rootComponent, ColumnControlEvent.COLUMN_UNFILTER)
+	function onColumnUnFilter(e:ColumnControlEvent) {
+		var columnControl = cast(columnControlList.getComponentAt(e.columnIndex), ColumnControlItemRenderer);
+		var filterText = columnControl.filterText.text;
+		_itemFilters.remove(colId(e.columnIndex));
+		if (Lambda.count(_itemFilters) == 0)
+			tv.dataSource.clearFilter();
+    }
+
+	@:bind(rootComponent, ColumnControlEvent.COLUMN_FILTER)
+	function onColumnFilter(e:ColumnControlEvent) {
+		var columnControl = cast(columnControlList.getComponentAt(e.columnIndex), ColumnControlItemRenderer);
+		var filterText = columnControl.filterText.text;
+        _itemFilters[colId(e.columnIndex)] = filterText; 
+		tv.dataSource.filter(itemFilter);
+	}
+
+	private var _itemFilters: Map<String, String> = [];
+
+	// Performs filtering on a DataSource item
+	public function itemFilter(itemIx:Int, item:Dynamic):Bool {
+		for(colId => filterPattern in _itemFilters) {
+			var value:String = Reflect.field(item, colId);
+			if (value.indexOf(filterPattern) < 0)
+				return false;
+		}
+		return true;
+	}
+	
 	// Handles drag-end events re-emitted by the column control sidebar
 	//
 	// Works out where it insert, and does the insertion.
@@ -233,6 +262,7 @@ class MainView extends VBox {
 				tv.itemRenderer.addComponent(ir);
 			}
 		}
+		ds.filter(itemFilter);
 		tv.dataSource = ds;
 
 		// Add a ListView column
