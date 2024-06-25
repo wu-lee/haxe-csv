@@ -1,5 +1,6 @@
 package;
 
+import haxe.ui.Toolkit;
 import haxe.ui.events.EventType;
 import haxe.ui.events.UIEvent;
 import haxe.ui.containers.ListView;
@@ -33,10 +34,7 @@ class MainView extends VBox {
 
 	@:bind(menuItemLoadTest, MouseEvent.CLICK)
 	private function onMenuItemLoadTest(_) {
-		loadFile({
-			fullPath: "assets/example.csv",
-			name: "example.csv"
-		});
+		loadString(Toolkit.assets.getText("assets/example.csv"));
 	}
 
 	@:bind(menuItemLoad, MouseEvent.CLICK)
